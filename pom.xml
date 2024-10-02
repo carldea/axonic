@@ -148,8 +148,8 @@
                 <version>3.13.0</version>
                 <configuration>
                     <fork>true</fork>
-                    <source>17</source>
-                    <target>17</target>
+                    <source>23</source>
+                    <target>23</target>
                     <compilerArgs>
                     </compilerArgs>
                 </configuration>
@@ -178,7 +178,10 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.5.0</version>
+                        <version>3.10.0</version>
+                        <configuration>
+                            <additionalOptions>--add-script mermaid.min.js</additionalOptions>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
