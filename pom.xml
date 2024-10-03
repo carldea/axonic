@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <!--
     mvn clean install -P release
+    mvn clean deploy -P release
     Creates all required files before release
     -->
     <modelVersion>4.0.0</modelVersion>
@@ -148,8 +149,8 @@
                 <version>3.13.0</version>
                 <configuration>
                     <fork>true</fork>
-                    <source>23</source>
-                    <target>23</target>
+                    <source>17</source>
+                    <target>17</target>
                     <compilerArgs>
                     </compilerArgs>
                 </configuration>
@@ -180,7 +181,6 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>3.10.0</version>
                         <configuration>
-                            <additionalOptions>--add-script mermaid.min.js</additionalOptions>
                         </configuration>
                         <executions>
                             <execution>

@@ -17,37 +17,13 @@
  */
 package org.carlfx.axonic;
 
+import java.util.function.BiConsumer;
+
 /**
- * Default States available such as an Initial and Stop state. If an illegal transition occurs the INVALID state is used.
+ * Allows a transition to have an input value for a code block to be executed on an encountered state.
+ * See FSM when() method.
+ * @param <Transition> The transition object being invoked.
+ * @param <T> The input value type. This input gets passed into the code block.
  */
-public enum StateEnum implements State {
-    /**
-     * Initial state
-     */
-    INITIAL("Initial"),
-    /**
-     * Stop state
-     */
-    STOP("Stop"),
-    /**
-     * Invalid state
-     */
-    INVALID("Invalid");
-
-    /**
-     * name of the state
-     */
-    final String name;
-
-    /**
-     * A friendly state name
-     * @param name
-     */
-    StateEnum(String name){
-        this.name = name;
-    }
-    @Override
-    public String getName() {
-        return name;
-    }
+public interface InputTransition<Transition, T> extends BiConsumer<Transition, T> {
 }
