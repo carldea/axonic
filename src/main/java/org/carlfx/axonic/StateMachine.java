@@ -28,13 +28,13 @@ import static org.carlfx.axonic.StateEnum.INVALID;
  * A default implementation of a state machine. Manages state.
  */
 public class StateMachine implements FSM {
-    private StatePattern statePattern;
+    private final StatePattern statePattern;
     private State previousState;
     private State currentState;
     private Transition currentTransition;
 
-    private Map<State, List<Runnable>> stateCodeMap = new LinkedHashMap<>();
-    private Map<State, List<InputTransition<Transition, Object>>> inputStateCodeMap = new LinkedHashMap<>();
+    private final Map<State, List<Runnable>> stateCodeMap = new LinkedHashMap<>();
+    private final Map<State, List<InputTransition<Transition, Object>>> inputStateCodeMap = new LinkedHashMap<>();
 
     private StateMachine(StatePattern statePattern) {
         this.statePattern = statePattern;

@@ -87,7 +87,7 @@ stateDiagram-v2
                     .s(LOCKED)
         );
         turnStyleSM.when(UNLOCKED, (t, input) -> {
-            LOG.info("transition: %s, input: %s, prevState: %s".formatted(t.name(), input, t.fromState()));
+            System.out.println("transition: %s, input: %s, prevState: %s".formatted(t.name(), input, t.fromState()));
         });
         // test 1. see current state info
         debugInfo(turnStyleSM);
@@ -176,11 +176,11 @@ stateDiagram-v2
                         .t("sensor opened")
                         .s(OPENED)
         );
-        sensorSM.when(OPENED, () ->  LOG.info("OPENED"));
-        sensorSM.when(OPENED, () ->  LOG.info("OPENED again"));
+        sensorSM.when(OPENED, () ->  System.out.println("OPENED"));
+        sensorSM.when(OPENED, () ->  System.out.println("OPENED again"));
 
-        sensorSM.when(CLOSING, () -> LOG.info("CLOSING"));
-        sensorSM.when(OPENING, () -> LOG.info("opening state."));
+        sensorSM.when(CLOSING, () -> System.out.println("CLOSING"));
+        sensorSM.when(OPENING, () -> System.out.println("opening state."));
         // test 1. see current state info
         debugInfo(sensorSM);
         //  state  |  transition (input) |
@@ -207,7 +207,7 @@ stateDiagram-v2
         sensorSM.t("open");
         debugInfo(sensorSM);
         
-        LOG.info(toPlantUml(sensorSM));
+        System.out.println(toPlantUml(sensorSM));
     }
     private void debugInfo(StateMachine turnStyleSM) {
         LOG.info(" Chose transition: " + turnStyleSM.currentTransition());
@@ -234,11 +234,11 @@ stateDiagram-v2
                         .t("sensor opened")
                         .s(OPENED)
         );
-        sensorSM.when(OPENED, () ->  LOG.info("OPENED"));
-        sensorSM.when(OPENED, () ->  LOG.info("OPENED again"));
+        sensorSM.when(OPENED, () ->  System.out.println("OPENED"));
+        sensorSM.when(OPENED, () ->  System.out.println("OPENED again"));
 
-        sensorSM.when(CLOSING, () -> LOG.info("CLOSING"));
-        sensorSM.when(OPENING, () -> LOG.info("opening state."));
+        sensorSM.when(CLOSING, () -> System.out.println("CLOSING"));
+        sensorSM.when(OPENING, () -> System.out.println("opening state."));
         return sensorSM;
     }
     private static StateMachine createTurnStyleSM() {
@@ -258,35 +258,36 @@ stateDiagram-v2
         );
 
         turnStyleSM
-                .when(LOCKED, (t, input) -> LOG.info("Secured Can not enter. called %s from state %s, input=%s".formatted(t.name(), t.fromState(), input)))
+                .when(LOCKED, (t, input) -> System.out.println("Secured Can not enter. called %s from state %s, input=%s".formatted(t.name(), t.fromState(), input)))
                 .when(UNLOCKED, () -> {
-                    if (turnStyleSM.previousState() == LOCKED) LOG.info("You may enter");
-                    if (turnStyleSM.previousState() == UNLOCKED) LOG.info("Thank you for more money!");
+                    if (turnStyleSM.previousState() == LOCKED) System.out.println("You may enter");
+                    if (turnStyleSM.previousState() == UNLOCKED) System.out.println("Thank you for more money!");
                 });
         return turnStyleSM;
     }
     public static <T> void stateMachineCli(StateMachine stateMachine, String stateMachineName) {
         Scanner scanner = new Scanner(System.in);
-        LOG.info("Here is a state pattern of a %s depicted here: ".formatted(stateMachineName));
-        LOG.info("\n" + toPlantUml(stateMachine));
-        LOG.info(" NOTE: If you are in stuck state type: jump <my_state>. e.g. jump Locked");
-        LOG.info("       Also to see all states type: show states");
-        LOG.info("Press [h] for help.");
-        LOG.info("Press [q] to quit.");
-        LOG.info("   Your initial state is: " + stateMachine.currentState().getName());
+        System.out.println("Here is a state pattern of a %s depicted here: ".formatted(stateMachineName));
+        System.out.println("\n" + toPlantUml(stateMachine));
+        System.out.println(" NOTE: If you are in stuck state type: jump <my_state>. e.g. jump Locked");
+        System.out.println("       Also to see all states type: show states");
+        System.out.println("Press [h] for help.");
+        System.out.println("Press [q] to quit.");
+        System.out.println("   Your initial state is: " + stateMachine.currentState().getName());
 
         while (true) {
             askUser(stateMachine);
             String inputTransition = scanner.nextLine();
+            System.out.println();
             // Validate input
             // quit
             if (inputTransition.trim().equalsIgnoreCase("q")) {
-                LOG.info("Bye!");
+                System.out.println("Bye!");
                 System.exit(0);
             }
             if (inputTransition.trim().equals("h")) {
 
-                LOG.info("""
+                System.out.println("""
                          
                          +-----------------------------------------------------+
                          |  Help menu                                          |
@@ -304,11 +305,12 @@ stateDiagram-v2
                          |                     line number to transition.      |
                          +-----------------------------------------------------+
                          """);
+                continue;
             }
             // show all states
             if (inputTransition.trim().startsWith("show states")) {
-                LOG.info("Showing available states for " + stateMachineName);
-                LOG.info(" States: [" + stateMachine.getStatePattern().states().stream().map(state -> state.getName()).collect(Collectors.joining(", ")) + "]");
+                System.out.println("Showing available states for " + stateMachineName);
+                System.out.println(" States: [" + stateMachine.getStatePattern().states().stream().map(state -> state.getName()).collect(Collectors.joining(", ")) + "]");
                 continue;
             }
 
@@ -318,20 +320,20 @@ stateDiagram-v2
                 if (pair.length > 1) {
                     String diagram = pair[1];
                     if (diagram.equalsIgnoreCase("mermaid")) {
-                        LOG.info("----------------------------------------");
-                        LOG.info("Diagram %s %s".formatted(diagram, "https://mermaid.live/"));
-                        LOG.info("----------------------------------------");
-                        LOG.info("\n" + toMermaid(stateMachine));
-                        LOG.info("----------------------------------------");
+                        System.out.println("----------------------------------------");
+                        System.out.println("Diagram %s %s".formatted(diagram, "https://mermaid.live/"));
+                        System.out.println("----------------------------------------");
+                        System.out.println("\n" + toMermaid(stateMachine));
+                        System.out.println("----------------------------------------");
                     } else if (diagram.equalsIgnoreCase("plantuml")) {
-                        LOG.info("----------------------------------------");
-                        LOG.info("Diagram %s %s".formatted(diagram, "https://www.plantuml.com/plantuml/uml"));
-                        LOG.info("----------------------------------------");
-                        LOG.info("\n" + toPlantUml(stateMachine));
-                        LOG.info("----------------------------------------");
+                        System.out.println("----------------------------------------");
+                        System.out.println("Diagram %s %s".formatted(diagram, "https://www.plantuml.com/plantuml/uml"));
+                        System.out.println("----------------------------------------");
+                        System.out.println("\n" + toPlantUml(stateMachine));
+                        System.out.println("----------------------------------------");
                     }
                 } else {
-                    LOG.info("Invalid diagram, please try again.");
+                    System.out.println("Invalid diagram, please try again.");
                 }
                 continue;
             }
@@ -341,15 +343,15 @@ stateDiagram-v2
                 String[] pair = inputTransition.split(" ");
                 if (pair.length > 1) {
                     String jumpToState = pair[1];
-                    LOG.info("Jumping to a new state " + jumpToState);
+                    System.out.println("Jumping to a new state " + jumpToState);
                     Optional<State> toStateOpt = stateMachine.lookupStateByName(jumpToState);
                     toStateOpt.ifPresentOrElse(state -> stateMachine.initial(state), ()->{
-                        LOG.info("Invalid State to begin, please try again.");
+                        System.out.println("Invalid State to begin, please try again.");
                     });
                 } else {
-                    LOG.info("Invalid State to begin, please try again.");
+                    System.out.println("Invalid State to begin, please try again.");
                 }
-                LOG.info("Your initial state is: " + stateMachine.currentState().getName());
+                System.out.println("Your initial state is: " + stateMachine.currentState().getName());
                 continue;
             }
 
@@ -365,29 +367,32 @@ stateDiagram-v2
                 // else the transition maybe a number as a name.
             }
 //            turnStyleSM.tOrElse(inputTransition,
-//                    ()-> LOG.info("Invalid choices, try again."));
+//                    ()-> System.out.println("Invalid choices, try again."));
 
             // new support for input data when transitioning. if null the transition name is used.
             String firstChar = inputTransition.charAt(0)+""; // make some random input first character
             // if transition is not valid invoke code block. (BiConsumer<String, T>)
             stateMachine.tOrElse(inputTransition, firstChar, (invalidTName, input)->
-                    LOG.info("Invalid choices, try again.")
+                    System.out.println("Invalid choices, try again.")
             );
 
-            LOG.info("transition: %s - input = %s".formatted(inputTransition, firstChar));
+            System.out.println("transition: %s - input = %s".formatted(inputTransition, firstChar));
 
 //            // prompt user options
 //            askUser(stateMachine);
         }
     }
     public static void askUser(StateMachine stateMachine){
-        LOG.info("Your current state is: " + stateMachine.currentState().getName());
+        System.out.println();
+        System.out.println("Your current state is: " + stateMachine.currentState().getName());
         // prompt user options
-        LOG.info("Where to go next? (Type the transition name or line number to move to the next state)");
+        System.out.println("Where to go next? (Type the transition name or line number to move to the next state)");
         for (int i = 0; i < stateMachine.outgoingTransitions().size(); i++) {
             Transition transition = stateMachine.outgoingTransitions().get(i);
-            LOG.info("%s) %s ---> (%s) ".formatted(i, transition.name(), transition.toState().getName()) );
+            System.out.println("%s) %s ---> (%s) ".formatted(i, transition.name(), transition.toState().getName()) );
         }
+        System.out.println();
+        System.out.print("Enter transition: ");
     }
 
     public static void main(String[] args){

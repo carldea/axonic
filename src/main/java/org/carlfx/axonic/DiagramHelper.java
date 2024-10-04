@@ -75,4 +75,23 @@ public class DiagramHelper {
         });
         return template.formatted(sb.toString());
     }
+
+//    public static String toTransitionTableAsCSV(StateMachine stateMachine) {
+//        String template = """
+//                stateDiagram-v2
+//                %s
+//                """;
+//        StringBuilder sb = new StringBuilder();
+//
+//        String pairString = "   %s --> %s : %s\n";
+//        // with i
+//        stateMachine
+//                .getStatePattern()
+//                .transitions().forEach(transition -> {
+//            String fromS = transition.fromState() == INITIAL ? "[*]" : transition.fromState().getName();
+//            String toS = transition.toState() == STOP ? "[*]" : transition.toState().getName();
+//            sb.append(pairString.formatted(fromS, toS, transition.name()));
+//        });
+//        return template.formatted(sb.toString());
+//    }
 }
