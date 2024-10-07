@@ -32,7 +32,7 @@ requires org.carlfx.axonic;
 ```
 
 # Demo
-Below you should see an example of a turn style with an additional state 'Fred'.
+Below you should see an example of a turnstile with an additional state 'Fred'.
 
 ![Screenshot 2024-10-06 at 10 55 33 PM](https://github.com/user-attachments/assets/c39371ab-9c55-4cea-bdc7-ea6f58257e84)
 
