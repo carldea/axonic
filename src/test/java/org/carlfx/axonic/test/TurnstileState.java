@@ -19,14 +19,14 @@ package org.carlfx.axonic.test;
 
 import org.carlfx.axonic.State;
 
-public enum TurnStyleState implements State {
+public enum TurnstileState implements State {
     LOCKED("Locked"),
     UNLOCKED("Unlocked"),
     FRED("Fred");
 
     final String name;
 
-    TurnStyleState(String name){
+    TurnstileState(String name){
         this.name = name;
     }
     @Override

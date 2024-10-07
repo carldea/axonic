@@ -21,4 +21,5 @@
 module org.carlfx.axonic {
     
     exports org.carlfx.axonic;
+    exports org.carlfx.axonic.tools;
 }

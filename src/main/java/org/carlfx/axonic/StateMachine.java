@@ -36,8 +36,23 @@ public class StateMachine implements FSM {
     private final Map<State, List<Runnable>> stateCodeMap = new LinkedHashMap<>();
     private final Map<State, List<InputTransition<Transition, Object>>> inputStateCodeMap = new LinkedHashMap<>();
 
+    private final String name;
     private StateMachine(StatePattern statePattern) {
+        this(null, statePattern);
+    }
+    private StateMachine(String name, StatePattern statePattern) {
         this.statePattern = statePattern;
+        this.name = name;
+    }
+    /**
+     * The name of the state machine
+     * @return name of state machine
+     */
+    public String getName(){
+        if (name == null) {
+            return super.toString();
+        }
+        return name;
     }
 
     /**
@@ -50,11 +65,12 @@ public class StateMachine implements FSM {
 
     /**
      * Factory function to create a state machine given a state pattern.
+     * @param name Name of the state machine.
      * @param statePattern State pattern defined.
      * @return Returns a StateMachine instance.
      */
-    public static StateMachine create(StatePattern statePattern) {
-        StateMachine stateMachine = new StateMachine(statePattern);
+    public static StateMachine create(String name, StatePattern statePattern) {
+        StateMachine stateMachine = new StateMachine(name, statePattern);
         stateMachine.previousState = INITIAL;
         stateMachine.currentTransition = statePattern.lookupOutgoingTransitions(INITIAL).getFirst();
         if (stateMachine.currentTransition == null) {
@@ -63,6 +79,26 @@ public class StateMachine implements FSM {
         stateMachine.currentState = stateMachine.currentTransition.toState();
         return stateMachine;
     }
+    /**
+     * Factory function to create a state machine given a state pattern.
+     * @param statePattern State pattern defined.
+     * @return Returns a StateMachine instance.
+     */
+    public static StateMachine create(StatePattern statePattern) {
+        return create(null, statePattern);
+    }
+
+    /**
+     * Factory function to create a state machine given a state pattern.
+     * @param name The name of the state machine
+     * @param statePatternConsumer allowing caller to define a state pattern.
+     * @return Returns a StateMachine instance.
+     */
+    public static StateMachine create(String name, Consumer<StatePattern> statePatternConsumer) {
+        StatePattern statePattern = new StatePattern();
+        statePatternConsumer.accept(statePattern);
+        return create(name, statePattern);
+    }
 
     /**
      * Factory function to create a state machine given a state pattern.
@@ -70,9 +106,7 @@ public class StateMachine implements FSM {
      * @return Returns a StateMachine instance.
      */
     public static StateMachine create(Consumer<StatePattern> statePatternConsumer) {
-        StatePattern statePattern = new StatePattern();
-        statePatternConsumer.accept(statePattern);
-        return create(statePattern);
+        return create(null, statePatternConsumer);
     }
 
     @Override

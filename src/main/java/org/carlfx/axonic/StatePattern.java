@@ -45,6 +45,7 @@ public class StatePattern implements FSMBuilder {
     public FSMBuilder initial(State state) {
         log.add(" i->" + state);
         currentState = state;
+        states().add(INITIAL);
         states().add(state);
         if (!initCalled) {
             Transition initialT = new Transition(INITIAL.name.toLowerCase(), INITIAL, state);

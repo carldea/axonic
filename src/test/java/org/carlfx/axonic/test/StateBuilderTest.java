@@ -19,24 +19,16 @@ package org.carlfx.axonic.test;
 
 import org.carlfx.axonic.State;
 import org.carlfx.axonic.StateMachine;
-import org.carlfx.axonic.StatePattern;
-import org.carlfx.axonic.Transition;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.stream.Collectors;
-
-import static org.carlfx.axonic.DiagramHelper.toMermaid;
-import static org.carlfx.axonic.DiagramHelper.toPlantUml;
+import static org.carlfx.axonic.tools.DiagramHelper.*;
 import static org.carlfx.axonic.test.StateBuilderTest.SensorState.*;
-import static org.carlfx.axonic.test.TurnStyleState.*;
+import static org.carlfx.axonic.test.TurnstileState.*;
+import static org.carlfx.axonic.tools.StateMachineCLI.beginConsoleSession;
 
 @DisplayName("StateBuilder Test")
 public class StateBuilderTest {
@@ -61,7 +53,7 @@ public class StateBuilderTest {
 
 
     @Test
-    @DisplayName("State Building Test Turn style")
+    @DisplayName("State Building Test Turnstile")
     void stateBuildingTest() {
 /*
 ----------------------
@@ -76,7 +68,7 @@ stateDiagram-v2
 
 */
         // input -> add fqn -> adding (add fqn form) -> done -> fqn already added state -> edit -> editting fqn -> cancel
-        StateMachine turnStyleSM = StateMachine.create(statePattern ->
+        StateMachine turnstileSM = StateMachine.create(statePattern ->
             statePattern
                     .initial(LOCKED)
                     .t("push")
@@ -86,61 +78,32 @@ stateDiagram-v2
                     .t("push")
                     .s(LOCKED)
         );
-        turnStyleSM.when(UNLOCKED, (t, input) -> {
+        turnstileSM.when(UNLOCKED, (t, input) -> {
             System.out.println("transition: %s, input: %s, prevState: %s".formatted(t.name(), input, t.fromState()));
         });
         // test 1. see current state info
-        debugInfo(turnStyleSM);
+        debugInfo(turnstileSM);
+        Assertions.assertEquals(LOCKED, turnstileSM.currentState());
 
         // test 2. transition with push
-        turnStyleSM.t("push", "p 2");
-        debugInfo(turnStyleSM);
+        turnstileSM.t("push", "p 2");
+        debugInfo(turnstileSM);
+        Assertions.assertEquals(LOCKED, turnstileSM.currentState());
 
         // test 3. transition with coin
-        turnStyleSM.t("coin", "c 3");
-        debugInfo(turnStyleSM);
+        turnstileSM.t("coin", "c 3");
+        debugInfo(turnstileSM);
+        Assertions.assertEquals(UNLOCKED, turnstileSM.currentState());
 
         // test 4. transition with coin
-        turnStyleSM.t("coin", "c 4");
-        debugInfo(turnStyleSM);
+        turnstileSM.t("coin", "c 4");
+        debugInfo(turnstileSM);
+        Assertions.assertEquals(UNLOCKED, turnstileSM.currentState());
 
         // test 5. transition with push
-        turnStyleSM.t("push", "p 5");
-        debugInfo(turnStyleSM);
-
-        // A turn stile
-        StatePattern turnStyle = new StatePattern();
-
-        turnStyle.initial(LOCKED)
-                .t("push")
-                .t("coin")
-                .s(UNLOCKED)
-                .t("coin")
-                .t("push")
-                .s(LOCKED);
-
-        StateMachine turnStyleSM2 = StateMachine.create(turnStyle);
-
-        // test 1. see current state info
-        debugInfo(turnStyleSM2);
-
-        // test 2. transition with push
-        turnStyleSM2.t("push");
-        debugInfo(turnStyleSM2);
-
-        // test 3. transition with coin
-        turnStyleSM2.t("coin");
-        debugInfo(turnStyleSM2);
-
-        // test 4. transition with coin
-        turnStyleSM2.t("coin");
-        debugInfo(turnStyleSM2);
-
-        // test 5. transition with push
-        turnStyleSM2.t("push");
-        debugInfo(turnStyleSM2);
-
-        toPlantUml(turnStyleSM2);
+        turnstileSM.t("push", "p 5");
+        debugInfo(turnstileSM);
+        Assertions.assertEquals(LOCKED, turnstileSM.currentState());
     }
 
     @Test
@@ -183,42 +146,45 @@ stateDiagram-v2
         sensorSM.when(OPENING, () -> System.out.println("opening state."));
         // test 1. see current state info
         debugInfo(sensorSM);
-        //  state  |  transition (input) |
-        sensorSM.t("add fqn"); // do you want to continue adding FQN.
-        /// pattern detail / property panel/ add fqn/ Node UI adding fqn/ edit othername/ editing an othername/ add fqn/ adding existing?
-        //sensorSM.tOrElse("asdfasdfasfd", () -> { report error to user});
+        Assertions.assertEquals(OPENED, sensorSM.currentState());
+
         // test 2. transition with close
         sensorSM.t("close");
         debugInfo(sensorSM);
+        Assertions.assertEquals(CLOSING, sensorSM.currentState());
 
         // test 3. transition with open
         sensorSM.t("open");
         debugInfo(sensorSM);
+        Assertions.assertEquals(OPENING, sensorSM.currentState());
 
         // test 4. transition with close
         sensorSM.t("close");
         debugInfo(sensorSM);
+        Assertions.assertEquals(CLOSING, sensorSM.currentState());
 
         // test 5. transition with sensor closed
         sensorSM.t("sensor closed");
         debugInfo(sensorSM);
+        Assertions.assertEquals(CLOSED, sensorSM.currentState());
 
         // test 6. transition with push
         sensorSM.t("open");
         debugInfo(sensorSM);
+        Assertions.assertEquals(OPENING, sensorSM.currentState());
         
         System.out.println(toPlantUml(sensorSM));
     }
-    private void debugInfo(StateMachine turnStyleSM) {
-        LOG.info(" Chose transition: " + turnStyleSM.currentTransition());
-        LOG.info("    Current state: " + turnStyleSM.currentState());
-        LOG.info("       Prev state: " + turnStyleSM.previousState());
-        LOG.info("Avail transitions: " + turnStyleSM.outgoingTransitions());
+    private void debugInfo(StateMachine turnstileSM) {
+        LOG.info(" Chose transition: " + turnstileSM.currentTransition());
+        LOG.info("    Current state: " + turnstileSM.currentState());
+        LOG.info("       Prev state: " + turnstileSM.previousState());
+        LOG.info("Avail transitions: " + turnstileSM.outgoingTransitions());
         LOG.info("-----------------------------------------------------");
     }
 
     private static StateMachine createSensorSM() {
-        StateMachine sensorSM = StateMachine.create(statePattern ->
+        StateMachine sensorSM = StateMachine.create("Sensor State Machine", statePattern ->
                 statePattern
                         .initial(OPENED)
                         .t("close")
@@ -241,8 +207,8 @@ stateDiagram-v2
         sensorSM.when(OPENING, () -> System.out.println("opening state."));
         return sensorSM;
     }
-    private static StateMachine createTurnStyleSM() {
-        StateMachine turnStyleSM = StateMachine.create(statePattern ->
+    private static StateMachine createTurnstileSM() {
+        StateMachine turnstileSM = StateMachine.create("Turnstile", statePattern ->
                 statePattern
                         .initial(LOCKED)
                         .t("push")
@@ -254,156 +220,27 @@ stateDiagram-v2
                         .t("hello")
                         .s(FRED)
                         .t("hello2")
-                        .moveInitial(LOCKED)
         );
 
-        turnStyleSM
+        turnstileSM
                 .when(LOCKED, (t, input) -> System.out.println("Secured Can not enter. called %s from state %s, input=%s".formatted(t.name(), t.fromState(), input)))
                 .when(UNLOCKED, () -> {
-                    if (turnStyleSM.previousState() == LOCKED) System.out.println("You may enter");
-                    if (turnStyleSM.previousState() == UNLOCKED) System.out.println("Thank you for more money!");
+                    if (turnstileSM.previousState() == LOCKED) System.out.println("You may enter");
+                    if (turnstileSM.previousState() == UNLOCKED) System.out.println("Thank you for more money!");
                 });
-        return turnStyleSM;
+        return turnstileSM;
     }
-    public static <T> void stateMachineCli(StateMachine stateMachine, String stateMachineName) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Here is a state pattern of a %s depicted here: ".formatted(stateMachineName));
-        System.out.println("\n" + toPlantUml(stateMachine));
-        System.out.println(" NOTE: If you are in stuck state type: jump <my_state>. e.g. jump Locked");
-        System.out.println("       Also to see all states type: show states");
-        System.out.println("Press [h] for help.");
-        System.out.println("Press [q] to quit.");
-        System.out.println("   Your initial state is: " + stateMachine.currentState().getName());
 
-        while (true) {
-            askUser(stateMachine);
-            String inputTransition = scanner.nextLine();
-            System.out.println();
-            // Validate input
-            // quit
-            if (inputTransition.trim().equalsIgnoreCase("q")) {
-                System.out.println("Bye!");
-                System.exit(0);
-            }
-            if (inputTransition.trim().equals("h")) {
-
-                System.out.println("""
-                         
-                         +-----------------------------------------------------+
-                         |  Help menu                                          |
-                         |                 h - Help menu                       |
-                         |                 q - Quit                            |
-                         |       show states - All states with state machine   |
-                         |      jump <state> - Jump to a known state by name   |
-                         |                     e.g. jump Locked                |
-                         |                                                     |
-                         |   diagram <xxxxx> - mermaid, plantuml               |
-                         |                                                     |
-                         | <transition name> or                                |
-                         |     [line number] - type a transition name to       |
-                         |                     advance. Optionally type the    |
-                         |                     line number to transition.      |
-                         +-----------------------------------------------------+
-                         """);
-                continue;
-            }
-            // show all states
-            if (inputTransition.trim().startsWith("show states")) {
-                System.out.println("Showing available states for " + stateMachineName);
-                System.out.println(" States: [" + stateMachine.getStatePattern().states().stream().map(state -> state.getName()).collect(Collectors.joining(", ")) + "]");
-                continue;
-            }
-
-            // display diagram
-            if (inputTransition.trim().startsWith("diagram")) {
-                String[] pair = inputTransition.split(" ");
-                if (pair.length > 1) {
-                    String diagram = pair[1];
-                    if (diagram.equalsIgnoreCase("mermaid")) {
-                        System.out.println("----------------------------------------");
-                        System.out.println("Diagram %s %s".formatted(diagram, "https://mermaid.live/"));
-                        System.out.println("----------------------------------------");
-                        System.out.println("\n" + toMermaid(stateMachine));
-                        System.out.println("----------------------------------------");
-                    } else if (diagram.equalsIgnoreCase("plantuml")) {
-                        System.out.println("----------------------------------------");
-                        System.out.println("Diagram %s %s".formatted(diagram, "https://www.plantuml.com/plantuml/uml"));
-                        System.out.println("----------------------------------------");
-                        System.out.println("\n" + toPlantUml(stateMachine));
-                        System.out.println("----------------------------------------");
-                    }
-                } else {
-                    System.out.println("Invalid diagram, please try again.");
-                }
-                continue;
-            }
-            // if you are in a stuck state type: jump locked
-            // this allows you to jump to any state.
-            if (inputTransition.trim().startsWith("jump")) {
-                String[] pair = inputTransition.split(" ");
-                if (pair.length > 1) {
-                    String jumpToState = pair[1];
-                    System.out.println("Jumping to a new state " + jumpToState);
-                    Optional<State> toStateOpt = stateMachine.lookupStateByName(jumpToState);
-                    toStateOpt.ifPresentOrElse(state -> stateMachine.initial(state), ()->{
-                        System.out.println("Invalid State to begin, please try again.");
-                    });
-                } else {
-                    System.out.println("Invalid State to begin, please try again.");
-                }
-                System.out.println("Your initial state is: " + stateMachine.currentState().getName());
-                continue;
-            }
-
-            // is transition typed a number
-            String regex = "\\d+";
-            if (inputTransition.matches(regex)) {
-                int index = Integer.parseInt(inputTransition);
-                List<Transition> transitions = stateMachine.outgoingTransitions();
-                if (transitions != null && index > -1 && index < transitions.size()) {
-                    Transition transition = transitions.get(index);
-                    inputTransition = transition.name();
-                }
-                // else the transition maybe a number as a name.
-            }
-//            turnStyleSM.tOrElse(inputTransition,
-//                    ()-> System.out.println("Invalid choices, try again."));
-
-            // new support for input data when transitioning. if null the transition name is used.
-            String firstChar = inputTransition.charAt(0)+""; // make some random input first character
-            // if transition is not valid invoke code block. (BiConsumer<String, T>)
-            stateMachine.tOrElse(inputTransition, firstChar, (invalidTName, input)->
-                    System.out.println("Invalid choices, try again.")
-            );
-
-            System.out.println("transition: %s - input = %s".formatted(inputTransition, firstChar));
-
-//            // prompt user options
-//            askUser(stateMachine);
-        }
-    }
-    public static void askUser(StateMachine stateMachine){
-        System.out.println();
-        System.out.println("Your current state is: " + stateMachine.currentState().getName());
-        // prompt user options
-        System.out.println("Where to go next? (Type the transition name or line number to move to the next state)");
-        for (int i = 0; i < stateMachine.outgoingTransitions().size(); i++) {
-            Transition transition = stateMachine.outgoingTransitions().get(i);
-            System.out.println("%s) %s ---> (%s) ".formatted(i, transition.name(), transition.toState().getName()) );
-        }
-        System.out.println();
-        System.out.print("Enter transition: ");
-    }
 
     public static void main(String[] args){
 
-        // A turn style test.
-        StateMachine stateMachine = createTurnStyleSM();
-        stateMachineCli(stateMachine, "Turn style");
+        // A turnstile test.
+        StateMachine stateMachine = createTurnstileSM();
+        beginConsoleSession(stateMachine);
 
         // Sensor state machine
-//        StateMachine stateMachine = createSensorSM();
-//        stateMachineCli(stateMachine, "Sensor StateMachine");
+        StateMachine stateMachine2 = createSensorSM();
+        beginConsoleSession(stateMachine2);
 
     }
 
