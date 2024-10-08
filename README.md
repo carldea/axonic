@@ -2,17 +2,32 @@ Please view the Wiki [here](https://github.com/carldea/axonic/wiki)
 # What's new? [Release notes](https://github.com/carldea/axonic/releases)
 - [0.0.1](https://github.com/carldea/axonic/releases/tag/release%2F0.0.1) 10/2024 - Initial creation.
 - [0.0.2](https://github.com/carldea/axonic/releases/tag/release%2F0.0.2) 10/06/2024 - Added a CLI tool to help developer visualize diagrams and transition tables.
+- [1.0.3](https://github.com/carldea/axonic/releases/tag/release%2F0.0.3) 10/07/2024 - Added new methods to define finer grain transitions.
 
 # Axonic
-A small Java based state machine.
+A Java based state machine.
+
+## Use Cases
+The following are common use cases for state machines.
+- Complex UIs such having multiple flows such as adding, editing, saving, canceling, to name a few.
+- Transactions
+- Simple games, such as text adventure (MUDs)
+- Modeling Workflows
+
+## Features
+- Define state transitions (`StatePattern`)
+- An interactive CLI ([StateMachineCLI](https://github.com/carldea/axonic/blob/main/src/main/java/org/carlfx/axonic/tools/StateMachineCLI.java)) This allows the developer to test state transitions.
+- Diagram using [PlantUml](https://www.plantuml.com/) and [Mermaid live](https://mermaid.live/) syntax
+- Display a transition table of current state machine
+
 
 
 ## Quick Start
-To use Axonic in your project, download and install Java 21+ JDK.
+To use Axonic in your project, download and install Java 17+ JDK.
 
 *Gradle:*
 ```gradle
-implementation 'org.carlfx:axonic:0.0.2'
+implementation 'org.carlfx:axonic:1.0.3'
 ```
 
 *Maven:*
@@ -20,7 +35,7 @@ implementation 'org.carlfx:axonic:0.0.2'
 <dependency>
     <groupId>org.carlfx</groupId>
     <artifactId>axonic</artifactId>
-    <version>0.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
@@ -97,16 +112,37 @@ StateMachine turnstileSM = StateMachine.create("Turnstile", statePattern ->
                .s(FRED)
                .t("hello2"));
 ```
+Here's an alternative way to define a state pattern:
+```java
+// Creating a turnstile State Machine based on a state pattern.
+StateMachine turnstileSM = StateMachine.create("Turnstile", statePattern ->
+   statePattern.initial(LOCKED)
+               .t("push", LOCKED)            // From Locked push To Locked
+               .t("coin", LOCKED, UNLOCKED)  // From Locked coin To Unlocked
+               .s(UNLOCKED)
+               .t("coin")                    // From Unlocked coin To Unlocked <-- To will take on current state to next state
+               .t("push")                    // From Unlocked push To Locked.  <-- To Locked is the next statement's state
+               .s(LOCKED)
+               .t("hello")
+               .s(FRED)
+               .t("hello2"));
+```
+Above you'll notice a finer grain approach to defining a transition from and to states respectively. When one state is specified as the **To** state the previously set state will be the **From** state.
 
 Next, you can invoke code when a state is encountered.
+
+## When Code block executions
+When a state is encountered via a transition you have an opportunity to create handler code as shown below.
 
 ```java
 turnstileSM.when(LOCKED, (t, input) -> 
               System.out.println("Secured. You may not enter. Transition %s from state %s, input=%s".formatted(t.name(), t.fromState(), input)))
-           .when(UNLOCKED, () -> {
+           .when(UNLOCKED, (t, input) -> {
               if (turnstileSM.previousState() == LOCKED) System.out.println("You may enter");
               if (turnstileSM.previousState() == UNLOCKED) System.out.println("Thank you for more money!");
-            });
+              if (!t.name().equals(input)) System.out.println("Input = " + input);
+            })
+           .when(FRED, () -> System.out.println("We are stuck. use jump <state>"));
 ```
 
 As you will notice there are two ways to invoke code blocks:
@@ -118,39 +154,40 @@ Now that you've defined the State Machine let's start interacting with it.
 # Testing your state machine
 
 ```java
-// Current state is Locked
-Assertions.assertEquals(LOCKED, turnstileSM.currentState());
+        // Current state is Locked
+        Assertions.assertEquals(LOCKED, turnstileSM.currentState());
 
-// To transition to push the outgoing (next state) is back to itself in the Locked state.
-turnstileSM.t("push");
-Assertions.assertEquals("push", turnstileSM.currentTransition().name());
-Assertions.assertEquals(LOCKED, turnstileSM.currentState());
-Assertions.assertEquals(LOCKED, turnstileSM.previousState());
+        // To transition to push the outgoing (next state) is back to itself in the Locked state.
+        turnstileSM.t("push");
+        Assertions.assertEquals("push", turnstileSM.currentTransition().name());
+        Assertions.assertEquals(LOCKED, turnstileSM.currentState());
+        Assertions.assertEquals(LOCKED, turnstileSM.previousState());
 
-// Transition with coin
-turnstileSM.t("coin", "c 3"); // 2nd parameter is optional input.
-Assertions.assertEquals(UNLOCKED, turnstileSM.currentState());
+        // Transition with coin
+        turnstileSM.t("coin", "10 cents"); // 2nd parameter is optional input.
+        Assertions.assertEquals(UNLOCKED, turnstileSM.currentState());
 
-// Transition with coin again
-turnstileSM.t("coin");
-Assertions.assertEquals(UNLOCKED, turnstileSM.currentState());
+        // Transition with coin again
+        turnstileSM.t("coin", "80 cents"); // 2nd parameter is optional input.
+        Assertions.assertEquals(UNLOCKED, turnstileSM.currentState());
 
-// Transition with a push
-turnstileSM.t("press");
-Assertions.assertEquals(LOCKED, turnstileSM.currentState());
+        // Transition with a push
+        turnstileSM.t("push");
+        Assertions.assertEquals(LOCKED, turnstileSM.currentState());
 
-// Transition with a hello
-turnstileSM.t("hello");
-Assertions.assertEquals(FRED, turnstileSM.currentState());
+        // Transition with a hello
+        turnstileSM.t("hello");
+        Assertions.assertEquals(FRED, turnstileSM.currentState());
 
-// Transition with a hello2
-turnstileSM.t("hello2");
-Assertions.assertEquals(FRED, turnstileSM.currentState());
+        // Transition with a hello2
+        turnstileSM.t("hello2");
+        Assertions.assertEquals(FRED, turnstileSM.currentState());
 
-// We are stuck in the Fred state. so let's change the initial transition back to Locked state.
-turnstileSM.initial(LOCKED);
-Assertions.assertEquals(LOCKED, turnstileSM.currentState());
-
+        // We are stuck in the Fred state. so let's change the initial transition back to Locked state.
+        turnstileSM.initial(LOCKED);
+        Assertions.assertEquals(LOCKED, turnstileSM.currentState());
+        turnstileSM.t("push");
+        Assertions.assertEquals(LOCKED, turnstileSM.currentState());
 ```
 
 The output is the following:
@@ -158,8 +195,13 @@ The output is the following:
 ```
 Secured. You may not enter. Transition push from state LOCKED, input=push
 You may enter
+Input = 10 cents
 Thank you for more money!
+Input = 80 cents
 Secured. You may not enter. Transition push from state UNLOCKED, input=push
+We are stuck. use jump <state>
+We are stuck. use jump <state>
+Secured. You may not enter. Transition push from state LOCKED, input=push
 ```
 
 # How to diagram your state pattern
@@ -366,8 +408,7 @@ Where to go next? (Type the transition name or line number to move to the next s
 
 Enter transition: 0
 
-Secured Can not enter. called push from state LOCKED, input=push
-transition: push - input = p
+Secured. You may not enter. Transition push from state LOCKED, input=push
 
 Your current state is: Locked
 Where to go next? (Type the transition name or line number to move to the next state)
@@ -378,7 +419,6 @@ Where to go next? (Type the transition name or line number to move to the next s
 Enter transition: 1
 
 You may enter
-transition: coin - input = c
 
 Your current state is: Unlocked
 Where to go next? (Type the transition name or line number to move to the next state)
@@ -388,7 +428,6 @@ Where to go next? (Type the transition name or line number to move to the next s
 Enter transition: 0
 
 Thank you for more money!
-transition: coin - input = c
 
 Your current state is: Unlocked
 Where to go next? (Type the transition name or line number to move to the next state)
@@ -397,8 +436,7 @@ Where to go next? (Type the transition name or line number to move to the next s
 
 Enter transition: 1
 
-Secured Can not enter. called push from state UNLOCKED, input=push
-transition: push - input = p
+Secured. You may not enter. Transition push from state UNLOCKED, input=push
 
 Your current state is: Locked
 Where to go next? (Type the transition name or line number to move to the next state)
@@ -408,15 +446,11 @@ Where to go next? (Type the transition name or line number to move to the next s
 
 Enter transition: 2
 
-transition: hello - input = h
-
 Your current state is: Fred
 Where to go next? (Type the transition name or line number to move to the next state)
 0) hello2 ---> (Fred) 
 
 Enter transition: 0
-
-transition: hello2 - input = h
 
 Your current state is: Fred
 Where to go next? (Type the transition name or line number to move to the next state)

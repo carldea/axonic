@@ -139,13 +139,10 @@ public class StateMachineCLI {
                 // else the transition maybe a number as a name.
             }
             // new support for input data when transitioning. if null the transition name is used.
-            String firstChar = inputTransition.charAt(0)+""; // make some random input first character
             // if transition is not valid invoke code block. (BiConsumer<String, T>)
-            stateMachine.tOrElse(inputTransition, firstChar, (invalidTName, input)->
+            stateMachine.tOrElse(inputTransition, inputTransition, (invalidTName, input)->
                     System.out.println("Invalid choices, try again.")
             );
-
-            System.out.println("transition: %s - input = %s".formatted(inputTransition, firstChar));
         }
     }
     public static void askUser(StateMachine stateMachine){

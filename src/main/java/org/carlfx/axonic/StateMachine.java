@@ -72,7 +72,7 @@ public class StateMachine implements FSM {
     public static StateMachine create(String name, StatePattern statePattern) {
         StateMachine stateMachine = new StateMachine(name, statePattern);
         stateMachine.previousState = INITIAL;
-        stateMachine.currentTransition = statePattern.lookupOutgoingTransitions(INITIAL).getFirst();
+        stateMachine.currentTransition = statePattern.lookupOutgoingTransitions(INITIAL).get(0);
         if (stateMachine.currentTransition == null) {
             throw new RuntimeException("StatePattern does not contain an initial transition");
         }

@@ -29,7 +29,6 @@ import static org.carlfx.axonic.StateEnum.STOP;
  * a state diagram and a state machine manages a user state.
  */
 public class StatePattern implements FSMBuilder {
-    private List<String> log = new ArrayList<>();
     private List<Transition> transitions;
     private Set<State> states;
     private Map<State, List<Transition>> outgoingTransitions = new HashMap<>();
@@ -43,7 +42,6 @@ public class StatePattern implements FSMBuilder {
     }
     @Override
     public FSMBuilder initial(State state) {
-        log.add(" i->" + state);
         currentState = state;
         states().add(INITIAL);
         states().add(state);
@@ -62,13 +60,11 @@ public class StatePattern implements FSMBuilder {
     public FSMBuilder moveInitial(State state) {
         if (initCalled) {
             // remove from log
-            Transition initialTransition = lookupOutgoingTransitions(INITIAL).getFirst();
+            Transition initialTransition = lookupOutgoingTransitions(INITIAL).get(0);
             transitions().remove(initialTransition);
-            log.remove(" i->" + initialTransition.toState());
             outgoingTransitions.remove(INITIAL);
         }
 
-        log.add(" i->" + state);
         currentState = state;
         states().add(state);
         Transition initialT = new Transition(INITIAL.name.toLowerCase(), INITIAL, state);
@@ -84,7 +80,6 @@ public class StatePattern implements FSMBuilder {
         if (currentState().equals(STOP)) {
             throw new RuntimeException("Can not make consecutive stop transitions");
         }
-        log.add(currentState() + " -> " + STOP.name);
         states().add(STOP);
         Transition stop = new Transition(STOP.name.toLowerCase(), currentState(), STOP);
         if (!transitions().contains(stop)) {
@@ -118,43 +113,57 @@ public class StatePattern implements FSMBuilder {
     }
     @Override
     public FSMBuilder t(String name) {
-        log.add(" %s-> (%s)".formatted(name, currentState()));
-        Transition transition = new Transition(name, currentState(), currentState());
-        transitions().add(transition);
-        addOutgoingTransitionsByState(currentState(), transition);
-        return this;
+        return this.t(name, (String) null);
     }
 
     @Override
     public FSMBuilder t(String name, String description) {
-        log.add(" %s-> (%s)".formatted(name, currentState()));
-        Transition transition = new Transition(name, currentState(), currentState(), description);
-        transitions().add(transition);
-        addOutgoingTransitionsByState(currentState(), transition);
-        return this;
+        return t(new Transition(name, currentState(), currentState(), description));
     }
     @Override
     public FSMBuilder t(Transition transition) {
-        log.add(" %s-> (%s)".formatted(transition.name(), currentState));
         transitions().add(transition);
-        addOutgoingTransitionsByState(currentState(), transition);
+        addOutgoingTransitionsByState(transition.fromState(), transition);
         return this;
+    }
+
+    @Override
+    public FSMBuilder t(String transition, State toState) {
+        return t(transition, currentState(), toState);
+    }
+
+    @Override
+    public FSMBuilder t(String transition, State toState, String description) {
+        return t(transition, currentState(), toState, description);
+    }
+
+    @Override
+    public FSMBuilder t(String transition, State fromState, State toState) {
+        return t(transition, fromState, toState, null);
+    }
+
+    @Override
+    public FSMBuilder t(String transition, State fromState, State toState, String description) {
+        Transition transition1 = new Transition(transition, fromState, toState, description);
+        states().add(fromState);
+        states().add(toState);
+        return t(transition1);
     }
 
     @Override
     public FSMBuilder s(State state) {
         currentState = state;
         states().add(state);
-        Transition transition = transitions().removeLast();
+        Transition transition = null;
+        if (transitions().size() > 0) {
+            transition = transitions().remove(transitions().size() -1);
+        }
         if (transition != null) {
             // Remove previous transition from lookup map.
             removeOutgoingTransitionsByState(transition.fromState(), transition);
-            String updating = log.removeLast();
             Transition recreatedTransition = transition.withToState(state);
             transitions().add(recreatedTransition);
             addOutgoingTransitionsByState(recreatedTransition.fromState(), recreatedTransition);
-
-            log.add(" %s-> (%s)".formatted(transition.name(), currentState));
         }
         return this;
     }
@@ -184,7 +193,6 @@ public class StatePattern implements FSMBuilder {
     public String toString() {
         return "StatePattern{" +
                 "initCalled=" + initCalled +
-                "log=" + log +
                 "states=" + states() +
                 "transitions=" + transitions() +
                 '}';

@@ -51,6 +51,41 @@ public interface FSMBuilder {
     FSMBuilder t(Transition transition);
 
     /**
+     * Transition line from current state to some state.
+     * @param transition Transition object.
+     * @param toState  next state
+     * @return The current FSMBuilder (state pattern) this allows method chaining.
+     */
+    FSMBuilder t(String transition, State toState);
+
+    /**
+     * Transition line from current state to some state.
+     * @param transition Transition object.
+     * @param toState  next state
+     * @param description description of transition.
+     * @return The current FSMBuilder (state pattern) this allows method chaining.
+     */
+    FSMBuilder t(String transition, State toState, String description);
+    /**
+     * Transition line from and to a known state.
+     * @param transition Transition object.
+     * @param fromState previous state
+     * @param toState  next state
+     * @return The current FSMBuilder (state pattern) this allows method chaining.
+     */
+    FSMBuilder t(String transition, State fromState, State toState);
+
+    /**
+     * Transition line from and to a known state.
+     * @param transition Transition object.
+     * @param fromState previous state
+     * @param toState  next state
+     * @param description
+     * @return The current FSMBuilder (state pattern) this allows method chaining.
+     */
+    FSMBuilder t(String transition, State fromState, State toState, String description);
+
+    /**
      * Establishes the next state for an outgoing transition.
      * @param state next state.
      * @return The current FSMBuilder (state pattern) this allows method chaining.
