@@ -3,6 +3,7 @@ Please view the Wiki [here](https://github.com/carldea/axonic/wiki)
 - [0.0.1](https://github.com/carldea/axonic/releases/tag/release%2F0.0.1) 10/2024 - Initial creation.
 - [0.0.2](https://github.com/carldea/axonic/releases/tag/release%2F0.0.2) 10/06/2024 - Added a CLI tool to help developer visualize diagrams and transition tables.
 - [1.0.3](https://github.com/carldea/axonic/releases/tag/release%2F0.0.3) 10/07/2024 - Added new methods to define finer grain transitions.
+- [1.1.4](https://github.com/carldea/axonic/releases/tag/release%2F1.1.4) 10/10/2024 - Added description to State. Fixed a bug for simple transactions not using the correct previous state. Updated plantuml diagram styling.
 
 # Axonic
 A Java based state machine.
@@ -21,13 +22,12 @@ The following are common use cases for state machines.
 - Display a transition table of current state machine
 
 
-
 ## Quick Start
 To use Axonic in your project, download and install Java 17+ JDK.
 
 *Gradle:*
 ```gradle
-implementation 'org.carlfx:axonic:1.0.3'
+implementation 'org.carlfx:axonic:1.1.4'
 ```
 
 *Maven:*
@@ -35,7 +35,7 @@ implementation 'org.carlfx:axonic:1.0.3'
 <dependency>
     <groupId>org.carlfx</groupId>
     <artifactId>axonic</artifactId>
-    <version>1.0.3</version>
+    <version>1.1.4</version>
 </dependency>
 ```
 
@@ -119,7 +119,6 @@ StateMachine turnstileSM = StateMachine.create("Turnstile", statePattern ->
    statePattern.initial(LOCKED)
                .t("push", LOCKED)            // From Locked push To Locked
                .t("coin", LOCKED, UNLOCKED)  // From Locked coin To Unlocked
-               .s(UNLOCKED)
                .t("coin")                    // From Unlocked coin To Unlocked <-- To will take on current state to next state
                .t("push")                    // From Unlocked push To Locked.  <-- To Locked is the next statement's state
                .s(LOCKED)
@@ -128,6 +127,8 @@ StateMachine turnstileSM = StateMachine.create("Turnstile", statePattern ->
                .t("hello2"));
 ```
 Above you'll notice a finer grain approach to defining a transition from and to states respectively. When one state is specified as the **To** state the previously set state will be the **From** state.
+
+**Note:** A transition's last specified state is the prior transition's `To state` or invoking `.s(current state)`.  
 
 Next, you can invoke code when a state is encountered.
 
