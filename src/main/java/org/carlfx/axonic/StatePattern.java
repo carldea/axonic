@@ -154,15 +154,15 @@ public class StatePattern implements FSMBuilder {
     }
 
     @Override
-    public StatePattern t(String name) {
-        this.t(name, (String) null);
+    public StatePattern t(String transition) {
+        this.t(transition, (String) null);
         simpleTransitionCalled = true; // overloaded will set to false.
         return this;
     }
 
     @Override
-    public StatePattern t(String name, String description) {
-        t(new Transition(name, currentState(), currentState(), description));
+    public StatePattern t(String transition, String description) {
+        t(new Transition(transition, currentState(), currentState(), description));
         simpleTransitionCalled = true; // overloaded will set to false.
         return this;
     }
