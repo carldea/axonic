@@ -29,6 +29,27 @@ import java.util.Set;
 public interface FSMBuilder {
 
     /**
+     * Returns a list of outgoing transitions based on current state.
+     * @param state current state.
+     * @return Returns a list of outgoing transitions based on current state.
+     */
+    List<Transition> lookupOutgoingTransitions(State state);
+
+    /**
+     * Add a new outgoing transition based on a state
+     * @param state state
+     * @param transition transition to add as an outgoing state transition.
+     */
+    FSMBuilder addOutgoingTransitionsByState(State state, Transition transition);
+
+    /**
+     * Remove an outgoing transition based on a state.
+     * @param state state
+     * @param transition transition to add as an outgoing state transition.
+     */
+    FSMBuilder removeOutgoingTransitionsByState(State state, Transition transition);
+
+    /**
      * Transition line from and to a known state.
      * @param transition Name of transition
      * @return The current FSMBuilder (state pattern) this allows method chaining.

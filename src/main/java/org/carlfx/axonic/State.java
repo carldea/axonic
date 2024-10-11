@@ -26,4 +26,13 @@ public interface State {
      * @return name of state
      */
     String getName();
+
+    /**
+     * A default empty string description is returned.
+     * Implementor can override.
+     * @return Description of the state.
+     */
+    default String getDescription(){
+        return "";
+    }
 }

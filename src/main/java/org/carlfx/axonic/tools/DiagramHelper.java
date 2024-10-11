@@ -48,18 +48,45 @@ public class DiagramHelper {
      * @return A PlantUML graph notation to represent digraph
      */
     public static String toPlantUml(StateMachine stateMachine) {
+        String colorForCurrentState = "#palegreen";
+        String colorForCurrentTransitionLine = "[#green]";
         String template = """
                 @startuml
                 %s@enduml
                 """;
         StringBuilder sb = new StringBuilder();
-
-        String pairString = "%s --> %s : %s\n";
+        // generate states and transitions
+        String pairString = "%s -%s-> %s : %s\n";
         stateMachine.getStatePattern().transitions().forEach(transition -> {
             String fromS = transition.fromState() == INITIAL ? "[*]" : transition.fromState().getName();
             String toS = transition.toState() == STOP ? "[*]" : transition.toState().getName();
-            sb.append(pairString.formatted(fromS, toS, transition.name()));
+            // Color the current transition line
+            String currentTransitionStyle = "";
+            if (!INITIAL.equals(transition.fromState())
+                    && transition.equals(stateMachine.currentTransition())){
+                currentTransitionStyle = colorForCurrentTransitionLine;
+            }
+            sb.append(pairString.formatted(fromS, currentTransitionStyle, toS, transition.name()));
         });
+
+        // generate styling for current states
+        stateMachine.getStatePattern().states().forEach(state -> {
+
+            State currentState = stateMachine.currentState();
+            if (INITIAL.equals(state) || STOP.equals(state)) {
+                // ignore styling
+            } else if (state.equals(currentState)) {
+                // style box
+                String styleCurrentState = "state %s %s : %s\n"
+                        .formatted(currentState.getName(), colorForCurrentState, currentState.getDescription());
+                sb.append(styleCurrentState);
+            } else {
+                // name and description
+                sb.append("state %s : %s\n".formatted(state.getName(), state.getDescription()));
+            }
+
+        });
+
         return template.formatted(sb.toString());
     }
 

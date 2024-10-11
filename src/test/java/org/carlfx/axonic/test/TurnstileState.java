@@ -22,15 +22,25 @@ import org.carlfx.axonic.State;
 public enum TurnstileState implements State {
     LOCKED("Locked"),
     UNLOCKED("Unlocked"),
-    FRED("Fred");
+    FRED("Fred", "Fred Flintstone");
 
     final String name;
+    final String description;
 
     TurnstileState(String name){
         this.name = name;
+        this.description = State.super.getDescription();
+    }
+    TurnstileState(String name, String description) {
+        this.name = name;
+        this.description = description;
     }
     @Override
     public String getName() {
         return name;
+    }
+    @Override
+    public String getDescription() {
+        return description;
     }
 }
