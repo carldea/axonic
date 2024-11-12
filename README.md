@@ -1,9 +1,10 @@
 Please view the Wiki [here](https://github.com/carldea/axonic/wiki)
 # What's new? [Release notes](https://github.com/carldea/axonic/releases)
-- [0.0.1](https://github.com/carldea/axonic/releases/tag/release%2F0.0.1) 10/2024 - Initial creation.
-- [0.0.2](https://github.com/carldea/axonic/releases/tag/release%2F0.0.2) 10/06/2024 - Added a CLI tool to help developer visualize diagrams and transition tables.
-- [1.0.3](https://github.com/carldea/axonic/releases/tag/release%2F0.0.3) 10/07/2024 - Added new methods to define finer grain transitions.
+- [1.1.5](https://github.com/carldea/axonic/releases/tag/release%2F1.1.5) 11/11/2024 - Updated logging dependencies to be in test scope.
 - [1.1.4](https://github.com/carldea/axonic/releases/tag/release%2F1.1.4) 10/10/2024 - Added description to State. Fixed a bug for simple transactions not using the correct previous state. Updated plantuml diagram styling.
+- [1.0.3](https://github.com/carldea/axonic/releases/tag/release%2F0.0.3) 10/07/2024 - Added new methods to define finer grain transitions.
+- [0.0.2](https://github.com/carldea/axonic/releases/tag/release%2F0.0.2) 10/06/2024 - Added a CLI tool to help developer visualize diagrams and transition tables.
+- [0.0.1](https://github.com/carldea/axonic/releases/tag/release%2F0.0.1) 10/2024 - Initial creation.
 
 # Axonic
 A Java based state machine.
@@ -27,7 +28,7 @@ To use Axonic in your project, download and install Java 17+ JDK.
 
 *Gradle:*
 ```gradle
-implementation 'org.carlfx:axonic:1.1.4'
+implementation 'org.carlfx:axonic:1.1.5'
 ```
 
 *Maven:*
@@ -35,7 +36,7 @@ implementation 'org.carlfx:axonic:1.1.4'
 <dependency>
     <groupId>org.carlfx</groupId>
     <artifactId>axonic</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
 </dependency>
 ```
 
